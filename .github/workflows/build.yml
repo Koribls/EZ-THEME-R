@@ -14,37 +14,38 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2️⃣ 安装依赖（如果有 package.json）
+      # 2️⃣ 安装 Node（如果有 package.json）
       - name: Setup Node
-        if: exists('package.json')
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
+        run: |
+          if [ -f package.json ]; then
+            echo "package.json found, setting up Node and installing dependencies"
+            curl -sL https://deb.nodesource.com/setup_18.x | bash -
+            apt-get install -y nodejs
+            npm install
+            npm run build
+          else
+            echo "No package.json found, skipping Node setup"
+          fi
 
-      - name: Install dependencies
-        if: exists('package.json')
-        run: npm install
-
-      # 3️⃣ 构建项目（dist 目录会被生成）
-      - name: Build project
-        if: exists('package.json')
-        run: npm run build
-
-      # 4️⃣ 打包 dist 目录成 ZIP
+      # 3️⃣ 打包 dist 目录成 ZIP
       - name: Zip dist directory
         run: |
-          THEME_NAME="EZ-THEME-R"
-          TIMESTAMP=$(date +'%Y%m%d%H%M%S')
-          zip -r ${THEME_NAME}_${TIMESTAMP}.zip dist
+          if [ -d dist ]; then
+            THEME_NAME="EZ-THEME-R"
+            TIMESTAMP=$(date +'%Y%m%d%H%M%S')
+            zip -r ${THEME_NAME}_${TIMESTAMP}.zip dist
+          else
+            echo "dist directory not found, skipping zip"
+          fi
 
-      # 5️⃣ 上传 artifact
+      # 4️⃣ 上传 artifact
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: EZ-THEME-R-build
           path: EZ-THEME-R_*.zip
 
-      # 6️⃣ （可选）创建 GitHub Release 并上传 ZIP
+      # 5️⃣ （可选）创建 GitHub Release 并上传 ZIP
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
