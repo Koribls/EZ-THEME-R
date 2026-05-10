@@ -6,7 +6,7 @@
         <span class="tip-text">不知道怎么选套餐？</span>
       </div>
       <a
-        href="https://google.com/combo/"
+        href="https://t.me/K2qqwljs"
         target="_blank"
         rel="noopener noreferrer"
         class="tip-link"
